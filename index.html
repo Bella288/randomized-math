@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Math Problem Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        .category {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .category h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .problem-container {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+        
+        .problem {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .graph-container {
+            width: 100%;
+            height: 300px;
+            background-color: white;
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .solution {
+            display: none;
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .solution h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        #show-solution {
+            background-color: #2ecc71;
+        }
+        
+        #show-solution:hover {
+            background-color: #27ae60;
+        }
+        
+        #new-problem {
+            background-color: #e74c3c;
+        }
+        
+        #new-problem:hover {
+            background-color: #c0392b;
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .category {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Random Math Problem Generator</h1>
+            <p class="description">Select problem categories and generate random math problems with solutions.</p>
+        </header>
+        
+        <div class="controls">
+            <div class="category">
+                <h3>Algebra</h3>
+                <div class="options">
+                    <label class="option-label">
+                        <input type="checkbox" id="linear-equations" checked>
+                        Linear Equations
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="quadratic-equations" checked>
+                        Quadratic Equations
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="systems-of-equations" checked>
+                        Systems of Equations
+                    </label>
+                </div>
+            </div>
+            
+            <div class="category">
+                <h3>Graphing</h3>
+                <div class="options">
+                    <label class="option-label">
+                        <input type="checkbox" id="linear-graphs" checked>
+                        Linear Graphs
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="quadratic-graphs" checked>
+                        Quadratic Graphs
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="piecewise-functions" checked>
+                        Piecewise Functions
+                    </label>
+                </div>
+            </div>
+            
+            <div class="category">
+                <h3>Geometry</h3>
+                <div class="options">
+                    <label class="option-label">
+                        <input type="checkbox" id="area-perimeter" checked>
+                        Area & Perimeter
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="pythagorean-theorem" checked>
+                        Pythagorean Theorem
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="trigonometry" checked>
+                        Trigonometry
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="problem-container">
+            <div class="problem" id="problem-text">Click "Generate Problem" to get started!</div>
+            <div class="graph-container" id="graph-container">
+                <canvas id="graph-canvas" width="600" height="300"></canvas>
+            </div>
+            <div class="solution" id="solution">
+                <h3>Solution</h3>
+                <div id="solution-text"></div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="generate-btn">Generate Problem</button>
+            <button id="show-solution">Show Solution</button>
+            <button id="new-problem">New Problem</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const problemText = document.getElementById('problem-text');
+        const solutionText = document.getElementById('solution-text');
+        const solutionDiv = document.getElementById('solution');
+        const generateBtn = document.getElementById('generate-btn');
+        const showSolutionBtn = document.getElementById('show-solution');
+        const newProblemBtn = document.getElementById('new-problem');
+        const graphCanvas = document.getElementById('graph-canvas');
+        const ctx = graphCanvas.getContext('2d');
+        
+        // Current problem data
+        let currentProblem = null;
+        
+        // Event Listeners
+        generateBtn.addEventListener('click', generateProblem);
+        showSolutionBtn.addEventListener('click', showSolution);
+        newProblemBtn.addEventListener('click', generateProblem);
+        
+        // Initialize
+        function init() {
+            // Set up canvas for high resolution displays
+            const dpr = window.devicePixelRatio || 1;
+            graphCanvas.width = graphCanvas.clientWidth * dpr;
+            graphCanvas.height = graphCanvas.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+            
+            // Generate first problem
+            generateProblem();
+        }
+        
+        // Generate a random problem based on selected categories
+        function generateProblem() {
+            // Hide solution
+            solutionDiv.style.display = 'none';
+            
+            // Get selected categories
+            const selectedCategories = [];
+            if (document.getElementById('linear-equations').checked) selectedCategories.push('linear-equations');
+            if (document.getElementById('quadratic-equations').checked) selectedCategories.push('quadratic-equations');
+            if (document.getElementById('systems-of-equations').checked) selectedCategories.push('systems-of-equations');
+            if (document.getElementById('linear-graphs').checked) selectedCategories.push('linear-graphs');
+            if (document.getElementById('quadratic-graphs').checked) selectedCategories.push('quadratic-graphs');
+            if (document.getElementById('piecewise-functions').checked) selectedCategories.push('piecewise-functions');
+            if (document.getElementById('area-perimeter').checked) selectedCategories.push('area-perimeter');
+            if (document.getElementById('pythagorean-theorem').checked) selectedCategories.push('pythagorean-theorem');
+            if (document.getElementById('trigonometry').checked) selectedCategories.push('trigonometry');
+            
+            // If no categories selected, show message
+            if (selectedCategories.length === 0) {
+                problemText.innerHTML = "Please select at least one problem category.";
+                return;
+            }
+            
+            // Randomly select a category
+            const randomCategory = selectedCategories[Math.floor(Math.random() * selectedCategories.length)];
+            
+            // Generate problem based on category
+            switch (randomCategory) {
+                case 'linear-equations':
+                    currentProblem = generateLinearEquation();
+                    break;
+                case 'quadratic-equations':
+                    currentProblem = generateQuadraticEquation();
+                    break;
+                case 'systems-of-equations':
+                    currentProblem = generateSystemOfEquations();
+                    break;
+                case 'linear-graphs':
+                    currentProblem = generateLinearGraph();
+                    break;
+                case 'quadratic-graphs':
+                    currentProblem = generateQuadraticGraph();
+                    break;
+                case 'piecewise-functions':
+                    currentProblem = generatePiecewiseFunction();
+                    break;
+                case 'area-perimeter':
+                    currentProblem = generateAreaPerimeter();
+                    break;
+                case 'pythagorean-theorem':
+                    currentProblem = generatePythagoreanTheorem();
+                    break;
+                case 'trigonometry':
+                    currentProblem = generateTrigonometry();
+                    break;
+            }
+            
+            // Display the problem
+            problemText.innerHTML = currentProblem.problem;
+            
+            // Draw graph if needed
+            if (currentProblem.graph) {
+                graphCanvas.style.display = 'block';
+                drawGraph(currentProblem.graph);
+            } else {
+                graphCanvas.style.display = 'none';
+            }
+        }
+        
+        // Show solution for current problem
+        function showSolution() {
+            if (!currentProblem) return;
+            
+            solutionText.innerHTML = currentProblem.solution;
+            solutionDiv.style.display = 'block';
+        }
+        
+        // Draw graph on canvas
+        function drawGraph(graphData) {
+            const width = graphCanvas.clientWidth;
+            const height = graphCanvas.clientHeight;
+            const padding = 40;
+            const xAxis = height / 2;
+            const yAxis = width / 2;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            
+            // X-axis
+            ctx.moveTo(0, xAxis);
+            ctx.lineTo(width, xAxis);
+            
+            // Y-axis
+            ctx.moveTo(yAxis, 0);
+            ctx.lineTo(yAxis, height);
+            
+            // Arrowheads
+            ctx.moveTo(width, xAxis);
+            ctx.lineTo(width - 10, xAxis - 5);
+            ctx.moveTo(width, xAxis);
+            ctx.lineTo(width - 10, xAxis + 5);
+            
+            ctx.moveTo(yAxis, 0);
+            ctx.lineTo(yAxis - 5, 10);
+            ctx.moveTo(yAxis, 0);
+            ctx.lineTo(yAxis + 5, 10);
+            
+            ctx.stroke();
+            
+            // Draw labels
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const x = yAxis + i * 40;
+                ctx.fillText(i.toString(), x, xAxis + 20);
+            }
+            
+            // Y-axis labels
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const y = xAxis - i * 40;
+                ctx.fillText(i.toString(), yAxis - 20, y + 5);
+            }
+            
+            // Origin label
+            ctx.fillText('0', yAxis - 10, xAxis + 20);
+            
+            // Draw graph based on type
+            if (graphData.type === 'linear') {
+                drawLinearGraph(graphData, width, height, xAxis, yAxis);
+            } else if (graphData.type === 'quadratic') {
+                drawQuadraticGraph(graphData, width, height, xAxis, yAxis);
+            } else if (graphData.type === 'piecewise') {
+                drawPiecewiseGraph(graphData, width, height, xAxis, yAxis);
+            }
+        }
+        
+        // Draw linear graph
+        function drawLinearGraph(graphData, width, height, xAxis, yAxis) {
+            const { m, b } = graphData;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            
+            // Calculate points
+            const x1 = -5;
+            const y1 = m * x1 + b;
+            const x2 = 5;
+            const y2 = m * x2 + b;
+            
+            // Convert to canvas coordinates
+            const canvasX1 = yAxis + x1 * 40;
+            const canvasY1 = xAxis - y1 * 40;
+            const canvasX2 = yAxis + x2 * 40;
+            const canvasY2 = xAxis - y2 * 40;
+            
+            // Draw line
+            ctx.moveTo(canvasX1, canvasY1);
+            ctx.lineTo(canvasX2, canvasY2);
+            ctx.stroke();
+            
+            // Draw equation
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`y = ${m}x + ${b}`, 20, 30);
+        }
+        
+        // Draw quadratic graph
+        function drawQuadraticGraph(graphData, width, height, xAxis, yAxis) {
+            const { a, b, c } = graphData;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            
+            // Draw parabola
+            for (let i = -5; i <= 5; i += 0.1) {
+                const x = i;
+                const y = a * x * x + b * x + c;
+                
+                const canvasX = yAxis + x * 40;
+                const canvasY = xAxis - y * 40;
+                
+                if (i === -5) {
+                    ctx.moveTo(canvasX, canvasY);
+                } else {
+                    ctx.lineTo(canvasX, canvasY);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Draw equation
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`y = ${a}x² + ${b}x + ${c}`, 20, 30);
+        }
+        
+        // Draw piecewise graph
+        function drawPiecewiseGraph(graphData, width, height, xAxis, yAxis) {
+            const { pieces } = graphData;
+            
+            ctx.strokeStyle = '#9b59b6';
+            ctx.lineWidth = 2;
+            
+            // Draw each piece
+            pieces.forEach(piece => {
+                ctx.beginPath();
+                
+                for (let x = piece.domain[0]; x <= piece.domain[1]; x += 0.1) {
+                    let y;
+                    if (piece.type === 'linear') {
+                        y = piece.m * x + piece.b;
+                    } else if (piece.type === 'quadratic') {
+                        y = piece.a * x * x + piece.b * x + piece.c;
+                    }
+                    
+                    const canvasX = yAxis + x * 40;
+                    const canvasY = xAxis - y * 40;
+                    
+                    if (x === piece.domain[0]) {
+                        ctx.moveTo(canvasX, canvasY);
+                    } else {
+                        ctx.lineTo(canvasX, canvasY);
+                    }
+                }
+                
+                ctx.stroke();
+            });
+            
+            // Draw equation info
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText("Piecewise Function", 20, 30);
+        }
+        
+        // Problem Generators
+        function generateLinearEquation() {
+            const a = Math.floor(Math.random() * 10) - 5;
+            const b = Math.floor(Math.random() * 20) - 10;
+            const c = a * 3 + b; // Solution when x = 3
+            
+            return {
+                problem: `Solve for x: ${a}x + ${b} = ${c}`,
+                solution: `Step 1: Subtract ${b} from both sides: ${a}x = ${c - b}<br>
+                           Step 2: Divide both sides by ${a}: x = ${(c - b) / a}<br>
+                           Solution: x = 3`,
+                graph: null
+            };
+        }
+        
+        function generateQuadraticEquation() {
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 10) - 5;
+            const c = Math.floor(Math.random() * 10) - 5;
+            
+            // Calculate discriminant
+            const discriminant = b * b - 4 * a * c;
+            
+            let solutionText;
+            if (discriminant < 0) {
+                solutionText = "This equation has no real solutions.";
+            } else {
+                const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                
+                solutionText = `Using the quadratic formula: x = [-b ± √(b² - 4ac)] / 2a<br>
+                                Discriminant: ${discriminant}<br>
+                                x = [${-b} ± √${discriminant}] / ${2*a}<br>
+                                Solutions: x = ${x1.toFixed(2)}, x = ${x2.toFixed(2)}`;
+            }
+            
+            return {
+                problem: `Solve for x: ${a}x² + ${b}x + ${c} = 0`,
+                solution: solutionText,
+                graph: {
+                    type: 'quadratic',
+                    a, b, c
+                }
+            };
+        }
+        
+        function generateSystemOfEquations() {
+            // Generate two linear equations
+            const m1 = Math.floor(Math.random() * 5) - 2;
+            const b1 = Math.floor(Math.random() * 10) - 5;
+            const m2 = Math.floor(Math.random() * 5) - 2;
+            const b2 = Math.floor(Math.random() * 10) - 5;
+            
+            // Find intersection (solution)
+            const x = (b2 - b1) / (m1 - m2);
+            const y = m1 * x + b1;
+            
+            return {
+                problem: `Solve the system of equations:<br>
+                          y = ${m1}x + ${b1}<br>
+                          y = ${m2}x + ${b2}`,
+                solution: `Set the equations equal: ${m1}x + ${b1} = ${m2}x + ${b2}<br>
+                           Solve for x: ${m1 - m2}x = ${b2 - b1}<br>
+                           x = ${x.toFixed(2)}<br>
+                           Substitute x into first equation: y = ${m1} * ${x.toFixed(2)} + ${b1} = ${y.toFixed(2)}<br>
+                           Solution: (${x.toFixed(2)}, ${y.toFixed(2)})`,
+                graph: {
+                    type: 'system',
+                    equations: [
+                        { m: m1, b: b1 },
+                        { m: m2, b: b2 }
+                    ]
+                }
+            };
+        }
+        
+        function generateLinearGraph() {
+            const m = (Math.floor(Math.random() * 10) - 5) / 2;
+            const b = Math.floor(Math.random() * 10) - 5;
+            
+            return {
+                problem: `Graph the equation: y = ${m}x + ${b}`,
+                solution: `This is a linear equation in slope-intercept form.<br>
+                           Slope (m) = ${m}<br>
+                           Y-intercept (b) = ${b}<br>
+                           Start at point (0, ${b}) on the y-axis, then use the slope to find other points.`,
+                graph: {
+                    type: 'linear',
+                    m, b
+                }
+            };
+        }
+        
+        function generateQuadraticGraph() {
+            const a = (Math.floor(Math.random() * 10) - 5) / 2;
+            const b = Math.floor(Math.random() * 10) - 5;
+            const c = Math.floor(Math.random() * 10) - 5;
+            
+            // Calculate vertex
+            const vertexX = -b / (2 * a);
+            const vertexY = a * vertexX * vertexX + b * vertexX + c;
+            
+            return {
+                problem: `Graph the quadratic equation: y = ${a}x² + ${b}x + ${c}`,
+                solution: `This is a quadratic equation in standard form.<br>
+                           Vertex: (${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})<br>
+                           Axis of symmetry: x = ${vertexX.toFixed(2)}<br>
+                           The parabola opens ${a > 0 ? 'upward' : 'downward'}.`,
+                graph: {
+                    type: 'quadratic',
+                    a, b, c
+                }
+            };
+        }
+        
+        function generatePiecewiseFunction() {
+            // Generate two pieces
+            const piece1 = {
+                type: 'linear',
+                m: Math.floor(Math.random() * 5) - 2,
+                b: Math.floor(Math.random() * 10) - 5,
+                domain: [-5, 0]
+            };
+            
+            const piece2 = {
+                type: 'linear',
+                m: Math.floor(Math.random() * 5) - 2,
+                b: Math.floor(Math.random() * 10) - 5,
+                domain: [0, 5]
+            };
+            
+            return {
+                problem: `Graph the piecewise function:<br>
+                          f(x) = {
+                            ${piece1.m}x + ${piece1.b} for x ≤ 0<br>
+                            ${piece2.m}x + ${piece2.b} for x > 0
+                          }`,
+                solution: `This is a piecewise function with two linear pieces.<br>
+                           For x ≤ 0, graph the line y = ${piece1.m}x + ${piece1.b}<br>
+                           For x > 0, graph the line y = ${piece2.m}x + ${piece2.b}<br>
+                           Note the open/closed circles at the transition point x = 0.`,
+                graph: {
+                    type: 'piecewise',
+                    pieces: [piece1, piece2]
+                }
+            };
+        }
+        
+        function generateAreaPerimeter() {
+            const shape = Math.random() > 0.5 ? 'rectangle' : 'triangle';
+            
+            if (shape === 'rectangle') {
+                const length = Math.floor(Math.random() * 10) + 5;
+                const width = Math.floor(Math.random() * 10) + 3;
+                
+                return {
+                    problem: `Find the area and perimeter of a rectangle with length ${length} and width ${width}.`,
+                    solution: `Area = length × width = ${length} × ${width} = ${length * width}<br>
+                               Perimeter = 2 × (length + width) = 2 × (${length} + ${width}) = ${2 * (length + width)}`,
+                    graph: null
+                };
+            } else {
+                const base = Math.floor(Math.random() * 10) + 5;
+                const height = Math.floor(Math.random() * 10) + 3;
+                const side1 = Math.floor(Math.random() * 10) + 5;
+                const side2 = Math.floor(Math.random() * 10) + 5;
+                
+                return {
+                    problem: `Find the area and perimeter of a triangle with base ${base}, height ${height}, and sides ${side1} and ${side2}.`,
+                    solution: `Area = ½ × base × height = ½ × ${base} × ${height} = ${0.5 * base * height}<br>
+                               Perimeter = base + side1 + side2 = ${base} + ${side1} + ${side2} = ${base + side1 + side2}`,
+                    graph: null
+                };
+            }
+        }
+        
+        function generatePythagoreanTheorem() {
+            const a = Math.floor(Math.random() * 10) + 3;
+            const b = Math.floor(Math.random() * 10) + 3;
+            const c = Math.sqrt(a * a + b * b).toFixed(2);
+            
+            if (Math.random() > 0.5) {
+                return {
+                    problem: `Find the hypotenuse of a right triangle with legs ${a} and ${b}.`,
+                    solution: `Using the Pythagorean theorem: a² + b² = c²<br>
+                               ${a}² + ${b}² = c²<br>
+                               ${a * a} + ${b * b} = c²<br>
+                               ${a * a + b * b} = c²<br>
+                               c = √${a * a + b * b} ≈ ${c}`,
+                    graph: null
+                };
+            } else {
+                return {
+                    problem: `Find the missing leg of a right triangle with one leg ${a} and hypotenuse ${c}.`,
+                    solution: `Using the Pythagorean theorem: a² + b² = c²<br>
+                               ${a}² + b² = ${c}²<br>
+                               ${a * a} + b² = ${c * c}<br>
+                               b² = ${c * c} - ${a * a} = ${c * c - a * a}<br>
+                               b = √${c * c - a * a} ≈ ${Math.sqrt(c * c - a * a).toFixed(2)}`,
+                    graph: null
+                };
+            }
+        }
+        
+        function generateTrigonometry() {
+            const angle = Math.floor(Math.random() * 60) + 20;
+            const side = Math.floor(Math.random() * 10) + 5;
+            const ratio = Math.random() > 0.5 ? 'sine' : 'cosine';
+            
+            const radians = angle * Math.PI / 180;
+            let solution;
+            
+            if (ratio === 'sine') {
+                const hypotenuse = side / Math.sin(radians);
+                solution = `sin(${angle}°) = opposite/hypotenuse = ${side}/hypotenuse<br>
+                            hypotenuse = ${side} / sin(${angle}°) ≈ ${side} / ${Math.sin(radians).toFixed(4)} ≈ ${hypotenuse.toFixed(2)}`;
+            } else {
+                const hypotenuse = side / Math.cos(radians);
+                solution = `cos(${angle}°) = adjacent/hypotenuse = ${side}/hypotenuse<br>
+                            hypotenuse = ${side} / cos(${angle}°) ≈ ${side} / ${Math.cos(radians).toFixed(4)} ≈ ${hypotenuse.toFixed(2)}`;
+            }
+            
+            return {
+                problem: `In a right triangle, the ${ratio === 'sine' ? 'opposite' : 'adjacent'} side to a ${angle}° angle is ${side}. Find the hypotenuse.`,
+                solution: solution,
+                graph: null
+            };
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
